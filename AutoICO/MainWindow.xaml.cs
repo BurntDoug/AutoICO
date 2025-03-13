@@ -1,50 +1,77 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+﻿using AutoICO.ViewModels;
+using Microsoft.Win32;
 using System;
-using System.Threading.Tasks;
+using System.IO;
+using System.Windows;
 
-namespace AutoICO;
-
-/// <summary>
-/// Main window for the AutoICO application.
-/// </summary>
-public sealed partial class MainWindow : Window
+namespace AutoICO
 {
-    private string? _selectedImagePath;
-
-    public MainWindow()
-    {
-        this.InitializeComponent();
-        Title = "AutoICO";
-    }
-
     /// <summary>
-    /// Event handler for the SelectFile button click.
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    private async void SelectFileButton_Click(object sender, RoutedEventArgs e)
+    public partial class MainWindow : Window
     {
-        var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
-        
-        // Initialize the file picker
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WinRT.Interop.InitializeWithWindow.Initialize(filePicker, hwnd);
-        
-        filePicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
-        filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
-        filePicker.FileTypeFilter.Add(".jpg");
-        filePicker.FileTypeFilter.Add(".jpeg");
-        filePicker.FileTypeFilter.Add(".png");
-        filePicker.FileTypeFilter.Add(".bmp");
-        filePicker.FileTypeFilter.Add(".gif");
+        private readonly MainViewModel _viewModel;
 
-        var file = await filePicker.PickSingleFileAsync();
-        if (file != null)
+        public MainWindow()
         {
-            _selectedImagePath = file.Path;
-            ConvertButton.IsEnabled = true;
+            InitializeComponent();
+            _viewModel = new MainViewModel();
+        }
+
+        /// <summary>
+        /// Event handler for the SelectFile button click.
+        /// </summary>
+        private void SelectFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif|All Files|*.*",
+                Title = "Select an Image File"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                _viewModel.SelectedImagePath = openFileDialog.FileName;
+                ConvertButton.IsEnabled = true;
+                
+                // In a full implementation, we would show a preview of the image here
+            }
+        }
+
+        /// <summary>
+        /// Event handler for the Convert button click.
+        /// </summary>
+        private async void ConvertButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConvertButton.IsEnabled = false;
+            SelectFileButton.IsEnabled = false;
             
-            // In a full implementation, we would show a preview of the image here
-            // and enable the convert button
+            try
+            {
+                bool success = await _viewModel.ConvertAsync();
+                
+                if (success)
+                {
+                    MessageBox.Show($"Successfully created ICO file at: {_viewModel.OutputPath}", 
+                        "Conversion Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to convert the image to ICO format.", 
+                        "Conversion Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", 
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ConvertButton.IsEnabled = true;
+                SelectFileButton.IsEnabled = true;
+            }
         }
     }
 }

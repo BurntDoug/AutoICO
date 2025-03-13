@@ -3,8 +3,6 @@ description: Use for Everything
 globs: 
 alwaysApply: true
 ---
-Below is an **extended CursorRule** that **includes GitHub-related** best practices alongside your existing .NET 9 + WinUI 3 guidelines. This helps ensure **consistency in version control**, **pull requests**, and **CI/CD** practices. Feel free to customize specific branching or commit message conventions to match your team’s workflow.
-
 ---
 
 # CursorRule: .NET 9 + WinUI 3 – Icon Converter Tool
@@ -22,7 +20,7 @@ We are developing a **.NET 9** **WinUI 3** application to convert images (PNG, J
    - Keep the UI code separate from business logic, focusing on maintainable architecture.
 
 2. **ImageSharp for Image Processing**  
-   - Use [**SixLabors.ImageSharp**](https://github.com/SixLabors/ImageSharp) for resizing and generating `.ico` files.
+   - Use [**SixLabors.ImageSharp**](mdc:https:/github.com/SixLabors/ImageSharp) for resizing and generating `.ico` files.
 
 3. **No Code Duplication, Manageable File Sizes**  
    - Avoid duplicating logic—abstract it into **static** or **utility** classes.  
@@ -33,7 +31,7 @@ We are developing a **.NET 9** **WinUI 3** application to convert images (PNG, J
    - `MASTERDOC.md`: Detailed architecture, troubleshooting, advanced usage, and a future roadmap.
 
 5. **Clean, Consistent .NET Conventions**  
-   - Follow [C# Coding Conventions](https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions).  
+   - Follow [C# Coding Conventions](mdc:https:/learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions).  
    - Use `var` for local variables when the type is obvious.  
    - Embrace **modern C# features** like pattern matching and records (where appropriate).
 

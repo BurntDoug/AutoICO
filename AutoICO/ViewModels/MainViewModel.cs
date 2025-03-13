@@ -1,16 +1,16 @@
 using AutoICO.Services;
-using Microsoft.UI.Xaml.Controls;
 using System;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace AutoICO.ViewModels
 {
     /// <summary>
     /// View model for the main window.
     /// </summary>
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
         private readonly ImageConverterService _imageConverterService;
         private string? _selectedImagePath;
@@ -32,11 +32,16 @@ namespace AutoICO.ViewModels
             get => _selectedImagePath;
             set 
             { 
-                _selectedImagePath = value;
-                // Default output path is the same directory with .ico extension
-                if (!string.IsNullOrEmpty(value))
+                if (_selectedImagePath != value)
                 {
-                    OutputPath = Path.ChangeExtension(value, ".ico");
+                    _selectedImagePath = value;
+                    OnPropertyChanged();
+                    
+                    // Default output path is the same directory with .ico extension
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        OutputPath = Path.ChangeExtension(value, ".ico");
+                    }
                 }
             }
         }
@@ -47,14 +52,21 @@ namespace AutoICO.ViewModels
         public string? OutputPath
         {
             get => _outputPath;
-            set => _outputPath = value;
+            set
+            {
+                if (_outputPath != value)
+                {
+                    _outputPath = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         /// <summary>
         /// Converts the selected image to .ico format.
         /// </summary>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<bool> ConvertAsync(ContentDialog? progressDialog = null)
+        public async Task<bool> ConvertAsync()
         {
             if (string.IsNullOrEmpty(SelectedImagePath) || string.IsNullOrEmpty(OutputPath))
             {
@@ -72,5 +84,16 @@ namespace AutoICO.ViewModels
                 return false;
             }
         }
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 } 
