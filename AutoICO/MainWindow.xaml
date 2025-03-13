@@ -7,29 +7,143 @@
     xmlns:local="clr-namespace:AutoICO"
     mc:Ignorable="d"
     Title="AutoICO"
-    MinWidth="600" MinHeight="400"
-    Width="800" Height="600">
+    MinWidth="700" MinHeight="600"
+    Width="900" Height="700"
+    AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver">
 
-    <Grid>
+    <Window.Resources>
+        <Style x:Key="DropZoneStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="20"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
-        <TextBlock Grid.Row="0" Margin="20" FontSize="24" Text="AutoICO - Convert Images to .ico Files" />
         
-        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Drag and drop an image here or click to select a file" 
-                       TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20" />
-            <Button x:Name="SelectFileButton" Content="Select Image" 
-                    HorizontalAlignment="Center" Padding="12,8" Margin="0,20,0,0"
-                    Click="SelectFileButton_Click" />
-        </StackPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20">
-            <Button x:Name="SettingsButton" Content="Settings" Margin="0,0,10,0" />
-            <Button x:Name="ConvertButton" Content="Convert" IsEnabled="False" Click="ConvertButton_Click" />
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" 
+                   FontSize="24" FontWeight="Bold" 
+                   Text="AutoICO - Convert Images to .ico Files" 
+                   Margin="0,0,0,15" />
+        
+        <!-- Left Column - Drop Zone and Preview -->
+        <Border Grid.Row="1" Grid.Column="0" 
+                Style="{StaticResource DropZoneStyle}" 
+                AllowDrop="True" Drop="Window_Drop" 
+                Margin="0,0,10,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <!-- Instructions when no image is selected -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" 
+                            VerticalAlignment="Center" 
+                            Visibility="{Binding IsImageSelected, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}">
+                    <TextBlock Text="Drag and drop an image here or click to select a file" 
+                               TextWrapping="Wrap" TextAlignment="Center" 
+                               Margin="0,0,0,20" FontSize="16" />
+                    <Button x:Name="SelectFileButton" Content="Select Image" 
+                            HorizontalAlignment="Center" Padding="12,8" 
+                            Click="SelectFileButton_Click" />
+                </StackPanel>
+                
+                <!-- Image preview when an image is selected -->
+                <StackPanel Grid.Row="1" 
+                           Visibility="{Binding IsImageSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Image Preview:" Style="{StaticResource SectionHeaderStyle}" />
+                    <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,5,0,10">
+                        <Image x:Name="PreviewImage" Stretch="Uniform" 
+                               MaxHeight="300" Source="{Binding ImagePreviewSource}" />
+                    </Border>
+                    <Button Content="Change Image" HorizontalAlignment="Left" 
+                            Padding="10,5" Margin="0,5,0,0" 
+                            Click="SelectFileButton_Click" />
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Right Column - Settings -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
+            <TextBlock Text="Settings" Style="{StaticResource SectionHeaderStyle}" />
+            
+            <!-- Input File Section -->
+            <TextBlock Text="Input File:" FontWeight="SemiBold" Margin="0,10,0,5" />
+            <TextBox Text="{Binding SelectedImagePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     IsReadOnly="True" Padding="5" Margin="0,0,0,10" />
+            
+            <!-- Output Path Section -->
+            <TextBlock Text="Output Path:" FontWeight="SemiBold" Margin="0,10,0,5" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Text="{Binding OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="5" />
+                <Button Grid.Column="1" Content="..." Width="30" Margin="5,0,0,0" 
+                        Click="BrowseOutputButton_Click" />
+            </Grid>
+            
+            <!-- Icon Sizes Section -->
+            <TextBlock Text="Icon Sizes:" FontWeight="SemiBold" Margin="0,20,0,5" />
+            <StackPanel>
+                <CheckBox x:Name="PresetSizesCheckBox" Content="Use standard Windows icon sizes" 
+                          IsChecked="True" Margin="0,0,0,5" 
+                          Checked="PresetSizesCheckBox_Checked" 
+                          Unchecked="PresetSizesCheckBox_Unchecked" />
+                <TextBlock Text="Custom Sizes (comma-separated, e.g. 128,64,32):" 
+                           Margin="0,10,0,5" 
+                           IsEnabled="{Binding ElementName=PresetSizesCheckBox, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}" />
+                <TextBox x:Name="CustomSizesTextBox" 
+                         Text="{Binding CustomSizes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="5" IsEnabled="{Binding ElementName=PresetSizesCheckBox, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}" />
+                
+                <TextBlock Text="You can enter multiple sizes separated by commas." 
+                           TextWrapping="Wrap" Foreground="#666666" 
+                           FontSize="11" Margin="0,5,0,0" 
+                           IsEnabled="{Binding ElementName=PresetSizesCheckBox, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}" />
+            </StackPanel>
+        </StackPanel>
+        
+        <!-- Status Bar -->
+        <TextBlock Grid.Row="2" Grid.ColumnSpan="2" x:Name="StatusTextBlock" 
+                   Margin="0,15,0,10" TextWrapping="Wrap" />
+        
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" 
+                    Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ConvertButton" Content="Convert" 
+                    IsEnabled="{Binding IsImageSelected}" 
+                    Padding="15,8" Margin="0,0,0,0" 
+                    Click="ConvertButton_Click" />
         </StackPanel>
     </Grid>
 </Window>
