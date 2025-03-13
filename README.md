@@ -1,6 +1,6 @@
 # AutoICO
 
-A .NET 9 WinUI 3 app to convert images into multi-resolution .ico files.
+A .NET 9 WPF app to convert images into multi-resolution .ico files.
 
 ## Overview
 
@@ -11,13 +11,12 @@ AutoICO is designed to automate the process of converting images (PNG, JPG, etc.
 - **Simple Drag-and-Drop or File Picker** for source images
 - **Automatic Resizing** to standard Windows icon resolutions
 - **Optional Custom Settings** (e.g., custom output directories, advanced sizing options)
-- **User-Friendly UI** with modern WinUI 3 design principles
+- **User-Friendly UI** with modern WPF design principles
 
 ## Build Requirements
 
 - .NET 9 (Preview)
-- Windows App SDK
-- Visual Studio 2022 or later with Windows development workload
+- Visual Studio 2022 or later with .NET desktop development workload
 
 ## Building and Running
 
