@@ -1,0 +1,183 @@
+---
+description: Use for Everything
+globs: 
+alwaysApply: true
+---
+Below is an **extended CursorRule** that **includes GitHub-related** best practices alongside your existing .NET 9 + WinUI 3 guidelines. This helps ensure **consistency in version control**, **pull requests**, and **CI/CD** practices. Feel free to customize specific branching or commit message conventions to match your team’s workflow.
+
+---
+
+# CursorRule: .NET 9 + WinUI 3 – Icon Converter Tool
+
+## 1. Summary
+We are developing a **.NET 9** **WinUI 3** application to convert images (PNG, JPG, etc.) into multi-resolution **`.ico`** files, and we plan to distribute the app via **MSIX**, aiming for Microsoft Store certification. This rule covers **.NET coding conventions**, **WinUI 3 best practices**, and now includes **GitHub usage** guidelines for version control, branching, PR reviews, and automated workflows.
+
+---
+
+## 2. Core Principles
+
+1. **.NET 9 + WinUI 3**  
+   - Use **WinUI 3** (Windows App SDK) for the UI.  
+   - Target **net9.0** (currently in preview).  
+   - Keep the UI code separate from business logic, focusing on maintainable architecture.
+
+2. **ImageSharp for Image Processing**  
+   - Use [**SixLabors.ImageSharp**](https://github.com/SixLabors/ImageSharp) for resizing and generating `.ico` files.
+
+3. **No Code Duplication, Manageable File Sizes**  
+   - Avoid duplicating logic—abstract it into **static** or **utility** classes.  
+   - Keep individual files or methods reasonably short (e.g., ~50–100 lines max per method), focusing on **single responsibility**.
+
+4. **README.md and MASTERDOC.md**  
+   - `README.md`: Quick steps for building, running, installing (including MSIX).  
+   - `MASTERDOC.md`: Detailed architecture, troubleshooting, advanced usage, and a future roadmap.
+
+5. **Clean, Consistent .NET Conventions**  
+   - Follow [C# Coding Conventions](https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions).  
+   - Use `var` for local variables when the type is obvious.  
+   - Embrace **modern C# features** like pattern matching and records (where appropriate).
+
+---
+
+## 3. Naming & Code Organization
+
+1. **PascalCase**  
+   - Classes, methods, public properties, e.g., `IconConverterService`, `ConvertToIcoAsync()`.
+2. **camelCase**  
+   - Private fields, local variables, method parameters (`sourceImagePath`, `outputPath`).
+3. **UPPERCASE**  
+   - Constants (e.g., `MAX_ICON_SIZE`).
+4. **Interfaces**  
+   - Prefix with `I` (e.g., `IImageConverter`).
+5. **Folder Structure**  
+   - **Views/** or root-level for `MainWindow.xaml` + `.cs`.  
+   - **Services/** or **Helpers/** for non-UI logic (e.g., `ImageConverter.cs`).  
+   - **Models/** for data classes or records if needed.
+
+---
+
+## 4. Error Handling & Resource Management
+
+1. **Guard Clauses**  
+   - Return early if inputs are invalid (missing file, empty path, etc.).  
+2. **Exception Handling**  
+   - In UI code: catch exceptions, show user-friendly messages.  
+   - Log technical details for troubleshooting.  
+3. **Disposal**  
+   - Dispose ImageSharp objects (`using var image = ...`) to free unmanaged resources promptly.
+
+---
+
+## 5. Testing & Validation
+
+1. **Unit Tests**  
+   - Use xUnit (or another .NET test framework).  
+   - Test the core logic (e.g., resizing, `.ico` creation).  
+2. **Separation**  
+   - Keep test projects (e.g., `IconConverter.Tests`) separate from production code.  
+3. **Mocks/Stubs**  
+   - Use **Moq** or similar if external services or advanced logic need isolation.
+
+---
+
+## 6. Performance Optimization
+
+1. **Async/Await**  
+   - All I/O-bound operations (image reads, writes) should be async to keep the UI responsive.  
+2. **Resource Usage**  
+   - Only cache or buffer if necessary.  
+   - Profile memory if you handle large images or batch operations.
+
+---
+
+## 7. MSIX Packaging & Store Submission
+
+1. **Packaged WinUI 3**  
+   - Configure the `.csproj` or separate packaging project for MSIX.  
+2. **Signing**  
+   - Use a test certificate for dev, a trusted certificate for production.  
+3. **Microsoft Store**  
+   - Keep your manifest and Windows App SDK references up-to-date.  
+   - Target net9.0 preview if you’re adopting .NET 9 early.
+
+---
+
+## 8. GitHub Usage
+
+Below are guidelines specific to **version control**, **branching**, **pull requests**, and **CI/CD** in GitHub.
+
+### 8.1 Repository Initialization & Structure
+
+- **One Repo** for the entire WinUI 3 app.  
+- Keep the default branch named **main** (or **master**—team preference).  
+- Add a `.gitignore` that includes typical **.NET** ignores (`bin`, `obj`, etc.).  
+- Optionally host **MSIX** build artifacts in a `releases/` directory or use GitHub Releases.
+
+### 8.2 Branching Strategy
+
+- **Feature Branches**: For each feature/bug fix, create a branch named `feature/<short-description>` or `fix/<short-description>`.  
+- **Pull Requests**: Merge feature branches into `main` via PRs.  
+- **Merge Type**: Choose **Squash** or **Rebase** merges to keep a clean commit history (team choice).
+
+### 8.3 Commit Messages
+
+- Use **descriptive** commit messages. Optionally adopt a standard like:
+  - `feat: add new icon resizing logic`
+  - `fix: handle null file paths`
+  - `refactor: move ImageConverter into separate class`
+- Keep commits **small** and focused on one logical change if possible.
+
+### 8.4 Pull Request Reviews
+
+- **At Least One Reviewer**: Another team member or the same developer if you’re solo (self-review).  
+- **Check**:
+  - Code style & structure  
+  - Tests pass (CI)  
+  - No obvious performance or security issues  
+  - Documentation updated (if relevant)
+
+### 8.5 GitHub Actions (CI/CD)
+
+- **Build**: For each commit/PR, run `dotnet build` to ensure no compilation errors.  
+- **Test**: `dotnet test` to confirm all unit tests pass.  
+- **Packaging** (optional): Create an MSIX in CI for certain branches (e.g., `main`).  
+- **Release Workflow** (optional):
+  - On a new GitHub release, automatically build and attach MSIX or `.exe` artifacts.
+
+### 8.6 Tagging & Releases
+
+- Use **semantic versioning** tags (e.g., `v1.0.0`, `v1.1.0`) or date-based.  
+- Create a **GitHub Release** for major milestones, including release notes and attached installers (if desired).
+
+---
+
+## 9. Additional ASP.NET or Backend Considerations (Optional)
+
+- If you ever add an **ASP.NET Core** component (e.g., for icon search or user profiles), follow typical controller, routing, EF Core patterns, etc.
+- Keep the same GitHub approach: feature branches, PRs, CI for building and testing.
+
+---
+
+## 10. Documentation & Continuous Updates
+
+1. **README.md**  
+   - Summarize the app, how to build/run (`dotnet run`), how to install (MSIX).  
+   - Link to the store listing if publicly available.
+2. **MASTERDOC.md**  
+   - Detailed architecture diagrams, advanced usage, known issues, future plans.  
+   - Update as new features or design changes occur.
+3. **CHANGELOG.md** (Optional)  
+   - Track incremental changes between versions or releases.
+
+---
+
+## 11. Summary
+
+By combining **.NET 9 + WinUI 3** best practices with **GitHub** version control and CI/CD guidelines, you ensure:
+
+- **Clean, modular code** with consistent style and structure.  
+- **Automated builds and tests** for reliable integration.  
+- **Organized collaboration** via branching, pull requests, and code reviews.  
+- **Streamlined distribution** via MSIX packaging and possible store submission.
+
+**End of Extended CursorRule** – .NET 9 + WinUI 3 + GitHub Guidelines
